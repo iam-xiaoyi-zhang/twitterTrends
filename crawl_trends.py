@@ -3,6 +3,20 @@ import tweepy
 import pymongo
 from .api import *
 
+# set connection to mongodb
+MONGODB_SERVER = "1-PC"  # does "localhost" work?
+MONGODB_PORT = 27017
+MONGODB_DB = "test"
+MONGODB_COLLECTION_TREND = "newtrend"
+
+print("-----CONNECTION TO MONGODB-----")
+connection = pymongo.MongoClient(
+    MONGODB_SERVER,
+    MONGODB_PORT
+)
+db = connection[MONGODB_DB]
+collection = db[MONGODB_COLLECTION_TREND]
+
 # connect to twitter api
 print("-----CONNECTING TO TWITTER API-----")
 auth = tweepy.OAuthHandler(twitter_consumer_key,
@@ -22,25 +36,12 @@ response2 = api.trends_place(woeid2)[0]
 trendList = []
 for response in [response1, response2]:
     trendInfo = response
-    #trendInfo = dict()
-    #trendInfo['twitterTrends'] = response.pop('trends')
-    #trendInfo['twitterTrendsInfo'] = response
+    # trendInfo = dict()
+    # trendInfo['twitterTrends'] = response.pop('trends')
+    # trendInfo['twitterTrendsInfo'] = response
     trendList.append(trendInfo)
 
 # check data in pymongo and then insert new data
-MONGODB_SERVER = "1-PC" # does "localhost" work?
-MONGODB_PORT = 27017
-MONGODB_DB = "test"
-MONGODB_COLLECTION_TREND = "newtrend"
-
-print("-----CONNECTION TO MONGODB-----")
-connection = pymongo.MongoClient(
-    MONGODB_SERVER,
-    MONGODB_PORT
-)
-db = connection[MONGODB_DB]
-collection = db[MONGODB_COLLECTION_TREND]
-
 for trend in trendList:
     collection.insert(trend)
     print("info added to MongoDB database!")
